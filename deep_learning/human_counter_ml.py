@@ -7,12 +7,11 @@ import argparse
 import imutils
 import time
 import cv2
-from tracker import *
+from tracker_1 import *
 
-object_counter = {}
 counter = 0
 
-tracker = EuclideanDistTracker()
+ct = CentroidTracker()
 
 # construct and parse arguments
 ap = argparse.ArgumentParser()
@@ -91,32 +90,24 @@ while True:
 			# cv2.putText(frame, "Counter: {}".format(counter), (10, 20), cv2.FONT_HERSHEY_SIMPLEX,
             #         1, (0, 0, 255), 3)
 
-	# Object Tracking
-	boxes_ids = tracker.update(objects)
-	for box_id in boxes_ids:
-		x, y, w, h, id = box_id
+    # Object Tracking
+	objects = ct.update(objects)
+	for (objectID, centroid) in objects.items():
+		print(centroid)
+        # draw both the ID of the object and the centroid of the
+        # object on the output frame
+		text = "ID {}".format(objectID)
+		cv2.putText(frame, text, (centroid[0]*2, centroid[1]),
+		cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
+		cv2.circle(frame, (centroid[0]*2, centroid[1]), 4, (0, 255, 0), -1)
 
-		# generate label
-		label = "{} {}: {:.2f}%".format('Human', str(id), confidence*100)
-		cv2.putText(frame, label, (x, y - 15), cv2.FONT_HERSHEY_PLAIN, 1.5, (255, 0, 0), 2)
+	# for box_id in boxes_ids:
+	# 	x, y, w, h, id = box_id
 
-		# draw rectangle border
-		cv2.rectangle(frame, (x, y), (x + w, y + h), (0, 255, 0), 2)
-
-		# draw centroid
-		centerCoordinate = (int(x+(w/2)), int(y+((h)/2)))
-		cv2.circle(frame, centerCoordinate, 2, (255, 255, 0), 2)
-
-		# handle counter
-		if (centerCoordinate[0] >= 1255 and centerCoordinate[0] <= 1265):
-			# check if the id is counted
-			if id not in object_counter:
-				object_counter[id] = 1
-				counter += 1
-		
-		# show counter
-		cv2.putText(frame, "Counter: {}".format(counter), (10, 20), cv2.FONT_HERSHEY_SIMPLEX,
-                    1, (0, 0, 255), 3)
+	# 	# generate label
+	# 	label = "{} {}: {:.2f}%".format('Human', str(id), confidence*100)
+	# 	cv2.putText(frame, label, (x, y - 15), cv2.FONT_HERSHEY_PLAIN, 1.5, (255, 0, 0), 2)
+	# 	cv2.rectangle(frame, (x, y), (x + w, y + h), (0, 255, 0), 2)
 
 	# show the output frame
 	cv2.imshow("Frame", frame)
