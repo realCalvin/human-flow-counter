@@ -5,7 +5,7 @@ import numpy as np
 counter = 0
 
 # Load video into opencv
-cap = cv2.VideoCapture('./data/data_1.mp4')
+cap = cv2.VideoCapture('./data/data_2.mp4')
 
 # Declare two video frames
 ret, frame1 = cap.read()

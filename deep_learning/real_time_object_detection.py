@@ -7,8 +7,12 @@ import argparse
 import imutils
 import time
 import cv2
+from tracker import *
 
+object_counter = {}
 counter = 0
+
+tracker = EuclideanDistTracker()
 
 # construct and parse arguments
 ap = argparse.ArgumentParser()
@@ -28,7 +32,7 @@ net = cv2.dnn.readNetFromCaffe(args["prototxt"], args["model"])
 
 # initialize video stream
 print("[INFO] starting video stream...")
-vs = FileVideoStream("../data/data_4.mp4").start()
+vs = FileVideoStream("../data/data_1.mp4").start()
 
 # loop over the frames from the video stream
 while True:
@@ -48,7 +52,9 @@ while True:
 	detections = net.forward()
 
     # Draw vertical lines
-	cv2.line(frame, (1350, 0), (1350, 1000), (255, 255, 0), thickness=2)
+	cv2.line(frame, (1270, 0), (1270, 1000), (0, 255, 0), thickness=2)
+
+	objects = []
 
 	# loop over each detection
 	for i in np.arange(0, detections.shape[2]):
@@ -61,26 +67,55 @@ while True:
 			box = detections[0, 0, i, 3:7] * np.array([w, h, w, h])
 			(startX, startY, endX, endY) = box.astype("int")
 
-			# generate label
-			label = "{}: {:.2f}%".format('Human', confidence*100)
+			objects.append([startX, startY, endX-startX, endY-startY])
 
-			# draw rectangle
-			cv2.rectangle(frame, (startX, startY), (endX, endY), (255, 255, 0), 2)
+			# # generate label
+			# label = "{}: {:.2f}%".format('Human', confidence*100)
+
+			# # draw rectangle
+			# cv2.rectangle(frame, (startX, startY), (endX, endY), (255, 255, 0), 2)
 			
-			# draw centroid
-			centerCoordinate = (int(startX+((endX-startX)/2)), int(startY+((endY-startY)/2)))
-			print(centerCoordinate)
-			cv2.circle(frame, centerCoordinate, 2, (255, 255, 0), 2)
+			# # draw centroid
+			# centerCoordinate = (int(startX+((endX-startX)/2)), int(startY+((endY-startY)/2)))
+			# print(centerCoordinate)
+			# cv2.circle(frame, centerCoordinate, 2, (255, 255, 0), 2)
 
-			if (centerCoordinate[0] >= 1345 and centerCoordinate[0] <= 1355):
+			# if (centerCoordinate[0] >= 1345 and centerCoordinate[0] <= 1355):
+			# 	counter += 1
+			# 	continue
+
+			# # draw label
+			# y = startY - 15 if startY - 15 > 15 else startY + 15
+			# cv2.putText(frame, label, (startX, y),
+			# 		cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 0), 2)
+			# cv2.putText(frame, "Counter: {}".format(counter), (10, 20), cv2.FONT_HERSHEY_SIMPLEX,
+            #         1, (0, 0, 255), 3)
+
+	# Object Tracking
+	boxes_ids = tracker.update(objects)
+	for box_id in boxes_ids:
+		x, y, w, h, id = box_id
+
+		# generate label
+		label = "{}: {:.2f}%".format('Human', confidence*100)
+		cv2.putText(frame, label, (x, y - 15), cv2.FONT_HERSHEY_PLAIN, 1.5, (255, 0, 0), 2)
+
+		# draw rectangle border
+		cv2.rectangle(frame, (x, y), (x + w, y + h), (0, 255, 0), 2)
+
+		# draw centroid
+		centerCoordinate = (int(x+(w/2)), int(y+((h)/2)))
+		cv2.circle(frame, centerCoordinate, 2, (255, 255, 0), 2)
+
+		# handle counter
+		if (centerCoordinate[0] >= 1240 and centerCoordinate[0] <= 1280):
+			# check if the id is counted
+			if id not in object_counter:
+				object_counter[id] = 1
 				counter += 1
-				continue
-
-			# draw label
-			y = startY - 15 if startY - 15 > 15 else startY + 15
-			cv2.putText(frame, label, (startX, y),
-					cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 0), 2)
-			cv2.putText(frame, "Counter: {}".format(counter), (10, 20), cv2.FONT_HERSHEY_SIMPLEX,
+		
+		# show counter
+		cv2.putText(frame, "Counter: {}".format(counter), (10, 20), cv2.FONT_HERSHEY_SIMPLEX,
                     1, (0, 0, 255), 3)
 
 	# show the output frame
