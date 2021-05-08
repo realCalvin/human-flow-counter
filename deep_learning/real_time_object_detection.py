@@ -32,7 +32,7 @@ net = cv2.dnn.readNetFromCaffe(args["prototxt"], args["model"])
 
 # initialize video stream
 print("[INFO] starting video stream...")
-vs = FileVideoStream("../data/data_4.mp4").start()
+vs = FileVideoStream("../data/data_1.mp4").start()
 
 # loop over the frames from the video stream
 while True:
@@ -97,7 +97,7 @@ while True:
 		x, y, w, h, id = box_id
 
 		# generate label
-		label = "{} {}: {:.2f}%".format('Human', str(id), confidence*100)
+		label = "{}: {:.2f}%".format('Human', confidence*100)
 		cv2.putText(frame, label, (x, y - 15), cv2.FONT_HERSHEY_PLAIN, 1.5, (255, 0, 0), 2)
 
 		# draw rectangle border
@@ -108,7 +108,7 @@ while True:
 		cv2.circle(frame, centerCoordinate, 2, (255, 255, 0), 2)
 
 		# handle counter
-		if (centerCoordinate[0] >= 1255 and centerCoordinate[0] <= 1265):
+		if (centerCoordinate[0] >= 1240 and centerCoordinate[0] <= 1280):
 			# check if the id is counted
 			if id not in object_counter:
 				object_counter[id] = 1
