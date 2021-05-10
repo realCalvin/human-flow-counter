@@ -32,7 +32,7 @@ net = cv2.dnn.readNetFromCaffe(args["prototxt"], args["model"])
 
 # initialize video stream
 print("[INFO] starting video stream...")
-vs = FileVideoStream("../data/data_1.mp4").start()
+vs = FileVideoStream("../data/data_2.mp4").start()
 
 # loop over the frames from the video stream
 while True:
