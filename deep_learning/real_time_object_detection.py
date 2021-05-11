@@ -117,6 +117,7 @@ while True:
 				counter += 1
 				
 				cropped_frame = frame[y:y+h, x:x+w]
+				cropped_frame = cv2.cvtColor(cropped_frame, cv2.COLOR_BGR2RGB)
 				img_crop = Image.fromarray(cropped_frame)
 				filename = '../extracted_images/person_' + str(id) + '.png'
 				img_crop.save(filename)

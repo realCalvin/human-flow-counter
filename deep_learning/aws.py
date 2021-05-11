@@ -2,7 +2,7 @@ import boto3
 import base64
 
 def detect_face(filename):
-    client = boto3.client('rekognition')
+    client = boto3.client('rekognition', region_name='us-west-2')
 
     with open (filename, 'rb') as image:
         encoded = base64.b64encode(image.read())
