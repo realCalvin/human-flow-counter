@@ -8,6 +8,8 @@ import imutils
 import time
 import cv2
 from tracker import *
+from PIL import Image
+from aws import *
 
 object_counter = {}
 counter = 0
@@ -32,7 +34,7 @@ net = cv2.dnn.readNetFromCaffe(args["prototxt"], args["model"])
 
 # initialize video stream
 print("[INFO] starting video stream...")
-vs = FileVideoStream("../data/data_2.mp4").start()
+vs = FileVideoStream("../data/data_1.mp4").start()
 
 # loop over the frames from the video stream
 while True:
@@ -113,6 +115,12 @@ while True:
 			if id not in object_counter:
 				object_counter[id] = 1
 				counter += 1
+				
+				cropped_frame = frame[y:y+h, x:x+w]
+				img_crop = Image.fromarray(cropped_frame)
+				filename = '../extracted_images/person_' + str(id) + '.png'
+				img_crop.save(filename)
+				detect_face(filename)
 		
 		# show counter
 		cv2.putText(frame, "Counter: {}".format(counter), (10, 20), cv2.FONT_HERSHEY_SIMPLEX,
