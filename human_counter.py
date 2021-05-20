@@ -5,7 +5,7 @@ import numpy as np
 counter = 0
 
 # Load video into opencv
-cap = cv2.VideoCapture('./data/data_2.mp4')
+cap = cv2.VideoCapture('./data/data_1.mp4')
 
 # Declare two video frames
 ret, frame1 = cap.read()
@@ -19,7 +19,7 @@ while cap.isOpened():
     grey = cv2.cvtColor(diff, cv2.COLOR_BGR2GRAY)
 
     # Blur the greyscale frame
-    blur = cv2.GaussianBlur(grey, (15, 15), 0)
+    blur = cv2.GaussianBlur(grey, (5, 5), 0)
 
     # Find threshold of blurred greyscale frame
     _, thresh = cv2.threshold(grey, 70, 255, cv2.THRESH_BINARY)
